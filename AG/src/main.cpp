@@ -1,92 +1,61 @@
 #include <iostream>
-#include <bitset>
+#include <stdlib.h>
 #include <algorithm>
-#include <cmath>
-
-#define INITIAL_GRID_SIZE 100
-#define LENGTH 32
-#define EXPLO 100
+#include <math.h>
 
 using namespace std;
 
 class sp
 {
-    private:
-        float start, end;
-        int grid_size;
-        double solution_space[INITIAL_GRID_SIZE];
-        string search_space[INITIAL_GRID_SIZE];
-
     public:
-        sp(float _start, float _end, int _grid_size)
-        {
-            start = _start;
-            end = _end;
-            grid_size = _grid_size;
-            solution_space[grid_size];
-            search_space[grid_size];
-        }
+        int start_x, end_x;
 
-        void generate_solution_space()
+        sp(int _start_x, int _end_x)
         {
-            for (int i = 0; i < grid_size; i++)
-            {
-                solution_space[i] = start + ((end - start) / grid_size) * i * EXPLO;
-            }
-        }
-
-        void generate_search_space()
-        {
-            for (int i = 0; i < grid_size; i++)
-            {
-                search_space[i] = bitset<LENGTH>(solution_space[i]).to_string();
-            }
-        }
-
-        void print_solution_space()
-        {
-            for (int i = 0; i < grid_size; i ++)
-            {
-                cout << solution_space[i] << endl;
-            }
-        }
-
-        void print_search_space()
-        {
-            for (int i = 0; i < grid_size; i ++)
-            {
-                cout << search_space[i] << endl;
-            }
+            start_x = _start_x;
+            end_x = _end_x;
         }
 };
 
-class agent
+class agente
 {
-    private:
-        float fitness, value;
-
     public:
-        agent(float _value)
+        float ajuste, valor[10];
+
+        agente(float _valor)
         {
-            value = _value;
+            valor[0] = _valor;
         }
 
-        void compute_fitness(float (*y)(float))
+        void calcular_ajuste(int i)
         {
-            fitness = y(value);
+            ajuste = pow(valor[i], 2);
+            cout << valor[i] << ", " << ajuste << endl;
+        }
+        void variar(float end_x, float start_x)
+        {
+            float delta = 0;
+            int i = 0;
+            while ((valor[i] <= end_x) && (valor[i] >= start_x))
+            {
+                delta += rand();
+                valor[i] += delta;
+            }
         }
 };
-
-float x2(float x)
-{
-    return pow(x, 2);
-}
 
 int main()
 {
-    sp test_quadratic(1, 100, 10);
-    test_quadratic.generate_solution_space();
-    test_quadratic.generate_search_space();
+    int i = 0;
+    sp test(-5, 5);
+    agente jorge(4);
+    jorge.calcular_ajuste(i);
+    while (jorge.ajuste >= 1e-10)
+    {
+        jorge.variar(test.start_x, test.end_x);
+        jorge.calcular_ajuste(i);
+        i++;
+    }
     //test_quadratic.print_solution_space();
     //test_quadratic.print_search_space();
 
