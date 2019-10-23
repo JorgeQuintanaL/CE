@@ -2,87 +2,72 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <math.h>
+#include <vector>
 
 using namespace std;
-
-class sp
-{
-    public:
-        int start_x, end_x;
-
-        sp(int _start_x, int _end_x)
-        {
-            start_x = _start_x;
-            end_x = _end_x;
-        }
-};
 
 class agente
 {
     public:
-        float ajuste, valor[10];
+        float ajuste, valor;
 
         agente(float _valor)
         {
-            valor[0] = _valor;
+            valor = _valor;
         }
 
-        void calcular_ajuste(int i)
+        void calcular_ajuste()
         {
-            ajuste = pow(valor[i], 2);
-            cout << valor[i] << ", " << ajuste << endl;
-        }
-        void variar(float end_x, float start_x)
-        {
-            float delta = 0;
-            int i = 0;
-            while ((valor[i] <= end_x) && (valor[i] >= start_x))
-            {
-                delta += rand();
-                valor[i] += delta;
-            }
+            ajuste = pow(valor, 2);
+            cout << valor << ", " << ajuste << endl;
         }
 };
+
+void inicializar_poblacion(agente **poblacion)
+{
+    for (int i = 0; i<5; i++)
+    {
+       *(poblacion+i) = new agente((rand() % 10 + 1));
+    }
+}
+
+void ordenar_poblacion(float *fitness)
+{
+    float ajuste_0, index_0, ajuste_1, index_1;
+    for (int i = 0; i<4; i++)
+    {
+        ajuste_1 = *((fitness+(i+1))+1);
+        index_1 = *(fitness+(i+1));
+        ajuste_0 = *((fitness+i)+1);
+        index_0 = *(fitness+i);
+        if (ajuste_1 < ajuste_0)
+        {
+            *((fitness+i)+1) = ajuste_1;
+            fitness[i][0] = index_1;
+            fitness[i+1][1] = ajuste_0;
+            fitness[i+1][0] = index_0;
+        }
+    }
+}
 
 int main()
 {
     int i = 0;
-    sp test(-5, 5);
-    agente jorge(4);
-    jorge.calcular_ajuste(i);
-    while (jorge.ajuste >= 1e-10)
+    int iteraciones = 100;
+    agente *poblacion[5];
+    float fitness[5][2];
+    inicializar_poblacion(poblacion);
+    for (int i = 0; i<5; i++)
     {
-        jorge.variar(test.start_x, test.end_x);
-        jorge.calcular_ajuste(i);
-        i++;
+        poblacion[i]->calcular_ajuste();
+        fitness[i][0] = i;
+        fitness[i][1] = poblacion[i]->ajuste;
+        //cout << fitness[i][0] << " " << fitness[i][1] << endl;
     }
-    //test_quadratic.print_solution_space();
-    //test_quadratic.print_search_space();
-
     
-    /*
-    int arreglo[5] = {1, 2, 3, 4, 5};
-    string binary[5];
-    unsigned long decimal[5];
-    
-    for (int i = 0; i < 5; i++)
+    ordenar_poblacion(fitness);
+    for (int i = 0; i<5; i++)
     {
-        binary[i] = bitset<4>(i).to_string();
-        decimal[i] = bitset<4>(binary[i]).to_ulong();
+        cout << fitness[i][0] << " " << fitness[i][1] << endl;
     }
-
-    for (int i = 0; i < 5; i++)
-    {
-        cout << "Original: " << i << endl;
-        cout << "Convertido: " << binary[i] << endl;
-        cout << "Recuperado: " << decimal[i] << endl;
-    }
-    //random_shuffle(&arreglo[0], &arreglo[3]);
-
-    
-    for (int i = 0; i < 5; i++)
-    {
-        cout << "Arreglo modificado: " << arreglo[i] << endl;
-    }
-    */
 }
