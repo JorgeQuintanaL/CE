@@ -4,6 +4,9 @@
 #include <math.h>
 #include <vector>
 
+#define TAMANO_POB 5
+#define ITERATIONS 100
+
 using namespace std;
 
 class agente
@@ -15,59 +18,60 @@ class agente
         {
             valor = _valor;
         }
-
         void calcular_ajuste()
         {
             ajuste = pow(valor, 2);
-            cout << valor << ", " << ajuste << endl;
+        }
+        void imprimir_ajuste()
+        {
+            cout << "Valor: " << valor << ". Fitness: " << ajuste << "." << endl;
         }
 };
 
-void inicializar_poblacion(agente **poblacion)
-{
-    for (int i = 0; i<5; i++)
-    {
-       *(poblacion+i) = new agente((rand() % 10 + 1));
-    }
-}
-
-void ordenar_poblacion(float *fitness)
-{
-    float ajuste_0, index_0, ajuste_1, index_1;
-    for (int i = 0; i<4; i++)
-    {
-        ajuste_1 = *((fitness+(i+1))+1);
-        index_1 = *(fitness+(i+1));
-        ajuste_0 = *((fitness+i)+1);
-        index_0 = *(fitness+i);
-        if (ajuste_1 < ajuste_0)
-        {
-            *((fitness+i)+1) = ajuste_1;
-            fitness[i][0] = index_1;
-            fitness[i+1][1] = ajuste_0;
-            fitness[i+1][0] = index_0;
-        }
-    }
-}
-
 int main()
 {
-    int i = 0;
-    int iteraciones = 100;
-    agente *poblacion[5];
-    float fitness[5][2];
-    inicializar_poblacion(poblacion);
-    for (int i = 0; i<5; i++)
+    //Declaración de variables y arreglos
+    vector<agente*> puntero_poblacion;
+    vector<float*> puntero_fitness;
+
+    //Inicialización de la población
+    for ( int i = 0; i < TAMANO_POB; i++ )
     {
-        poblacion[i]->calcular_ajuste();
-        fitness[i][0] = i;
-        fitness[i][1] = poblacion[i]->ajuste;
-        //cout << fitness[i][0] << " " << fitness[i][1] << endl;
+        float val = rand() % 100 + 1;
+        agente* agente_ = new agente(val);
+        puntero_poblacion.push_back(agente_);
     }
-    
-    ordenar_poblacion(fitness);
-    for (int i = 0; i<5; i++)
+
+    //Ordenamiento de la población de acuerdo con el fitness
+    int ind_i = 0;
+    int ind_j = 1;
+    float mayor, menor;
+    agente *aux;
+
+    for ( int i = ind_i; i < puntero_poblacion.size(); i++ )
     {
-        cout << fitness[i][0] << " " << fitness[i][1] << endl;
+        vector<agente*>::iterator i_ = next(puntero_poblacion.begin(), i);
+        (*i_)->calcular_ajuste();
+        mayor = (*i_)->ajuste;
+        for ( int j = ind_j; j < puntero_poblacion.size(); j++ )
+        {
+            vector<agente*>::iterator j_ = next(puntero_poblacion.begin(), j);
+            (*j_)->calcular_ajuste();
+            menor = (*j_)->ajuste;
+            if (mayor <= menor)
+            {
+                aux = puntero_poblacion[j];
+                puntero_poblacion[j] = puntero_poblacion[i];
+                puntero_poblacion[i] = aux;
+            }
+        }
+        ind_j++;
     }
+
+    for (vector<agente*>::iterator i = puntero_poblacion.begin(); i < puntero_poblacion.end(); ++i )
+    {
+        cout << "Valor: " << (*i)->valor << " Fitness: " << (*i)->ajuste << endl;
+    }
+
+   return 0;
 }
